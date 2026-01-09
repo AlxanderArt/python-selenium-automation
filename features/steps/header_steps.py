@@ -1,5 +1,6 @@
 from selenium.webdriver.common.by import By
 from behave import given, when, then
+from time import sleep
 
 SEARCH_FIELD = (By.ID, 'search')
 SEARCH_ICON = (By.CSS_SELECTOR, "[data-test='@web/Search/SearchButton']")
@@ -16,6 +17,7 @@ def click_cart(context):
 def search_product(context, product):
     context.driver.find_element(*SEARCH_FIELD).send_keys(product)
     context.driver.find_element(*SEARCH_ICON).click()
+    sleep(10)
 
 
 @then('Verify {expected_amount} top header links are shown')
