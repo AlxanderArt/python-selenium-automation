@@ -20,15 +20,8 @@ Feature: Tests for search
     |mug      |mug              |
     |coffee   |coffee           |
 
-#  Scenario Outline: Login error shown for invalid login
-#    Given Open login page
-#    When Enter login username <username>
-#    And Enter login password <password>
-#    Then Verify login error message <err_message>
-#    Examples:
-#    |username  |password        |err_message             |
-#    |non_exist |password122     |this account not found  |
-#    |user123   |incorrect_pass  |this password is not correct  |
-
-
+  Scenario: Verify that user can see product names and images
+    Given Open Target main page
+    When Search for AirPods
+    Then Verify that every product has a name and an image
 
