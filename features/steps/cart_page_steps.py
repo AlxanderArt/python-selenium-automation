@@ -36,5 +36,4 @@ def verify_product(context):
 
 @then('Empty Cart message is shown')
 def verify_empty_cart_msg(context):
-    actual_text = context.driver.find_element(By.CSS_SELECTOR, "[data-test='boxEmptyMsg']").text
-    assert 'Your cart is empty' in actual_text, f"Expected 'Your cart is empty' text not in {actual_text}"
+    context.app.cart_page.verify_empty_cart_msg()

@@ -2,13 +2,12 @@ from selenium.webdriver.common.by import By
 from behave import given, when, then
 from time import sleep
 
-CART_ICON = (By.CSS_SELECTOR, "[data-test='@web/CartIcon']")
 HEADER_LINKS = (By.CSS_SELECTOR, "[data-test*='@web/GlobalHeader/UtilityHeader/']")
 
 
 @when('Click on cart icon')
 def click_cart(context):
-    context.driver.find_element(*CART_ICON).click()
+    context.app.header.click_cart()
 
 
 @when('Search for {product}')
