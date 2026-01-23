@@ -1,3 +1,4 @@
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from behave import given, when, then
@@ -35,6 +36,11 @@ def side_nav_click_add_to_cart(context):
     sleep(2)
 
 
+@when('Hover favorites icon')
+def hover_fav_icon(context):
+    context.app.search_results_page.hover_fav_icon()
+
+
 @then('Search results for {expected_product} are shown')
 def verify_search_results(context, expected_product):
     context.app.search_results_page.verify_search_results(expected_product)
@@ -55,3 +61,8 @@ def verify_products_name_img(context):
         assert title, 'Product title not shown'
         print(f'🟢{title}')
         product.find_element(*PRODUCT_IMG)
+
+
+@then('Favorites tooltip is shown')
+def verify_fav_tooltip(context):
+    context.app.search_results_page.verify_fav_tooltip()

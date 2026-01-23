@@ -23,4 +23,3 @@ def verify_top_links_shown(context, expected_amount):
     # print(links)
     # assert 6 == 6
     assert len(links) == expected_amount, f'Expected {expected_amount} header links, but got {len(links)}'
-
