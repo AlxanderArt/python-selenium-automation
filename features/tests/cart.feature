@@ -5,6 +5,7 @@ Feature: Test cases for Cart
     When Click on cart icon
     Then Empty Cart message is shown
 
+  @smoke
   Scenario: User can add a product to cart
     Given Open Target main page
     When Search for mug

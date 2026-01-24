@@ -5,9 +5,9 @@ from pages.base_page import Page
 
 
 class HelpPage(Page):
-    # RETURNS_HEADER = (By.XPATH, "//h1[text()=' Returns']")
-    # PROMOTIONS_HEADER = (By.XPATH, "//h1[text()=' Current promotions']")
-    # TARGET_CIRCLE = (By.XPATH, "//h1[text()=' About Target Circle']")
+    RETURNS_HEADER = (By.XPATH, "//h1[text()=' Returns']")
+    PROMOTIONS_HEADER = (By.XPATH, "//h1[text()=' Current promotions']")
+    TARGET_CIRCLE = (By.XPATH, "//h1[text()=' About Target Circle']")
     TOPIC_HEADER = (By.XPATH, "//h1[text()=' {TOPIC_HEADER}']")
     SELECT_TOPIC_DD = (By.CSS_SELECTOR, "select[id*='ViewHelpTopics']")
 
@@ -27,8 +27,8 @@ class HelpPage(Page):
         locator = self._get_header_topic_locator(topic)
         self.wait_until_element_present(*locator)
 
-    # def verify_promotions_opened(self):
-    #     self.wait_until_element_present(*self.PROMOTIONS_HEADER)
-    #
-    # def verify_returns_opened(self):
-    #     self.wait_until_element_present(*self.RETURNS_HEADER)
+    def verify_promotions_opened(self):
+        self.wait_until_element_present(*self.PROMOTIONS_HEADER)
+
+    def verify_returns_opened(self):
+        self.wait_until_element_present(*self.RETURNS_HEADER)

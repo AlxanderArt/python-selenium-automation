@@ -1,9 +1,10 @@
 Feature: Tests for search
 
+  @smoke
   Scenario: User can search for a tea on Target
     Given Open Target main page
     When Search for tea
-    Then Search results for tea are shown
+    Then Search results for tea1111 are shown
 
 #  Scenario: User can search for a mug on Target
 #    Given Open Target main page
@@ -20,6 +21,7 @@ Feature: Tests for search
     |mug      |mug              |
     |coffee   |coffee           |
 
+  @smoke
   Scenario: Verify that user can see product names and images
     Given Open Target main page
     When Search for AirPods
