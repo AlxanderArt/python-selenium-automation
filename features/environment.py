@@ -7,6 +7,8 @@ def browser_init(context):
     """
     options = webdriver.ChromeOptions()
     options.binary_location = '/Users/alxanderart/Desktop/Google Chrome.app/Contents/MacOS/Google Chrome'
+    options.add_argument('--disable-blink-features=AutomationControlled')
+    options.add_experimental_option('excludeSwitches', ['enable-automation'])
     context.driver = webdriver.Chrome(options=options)
 
     context.driver.maximize_window()
