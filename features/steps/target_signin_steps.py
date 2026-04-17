@@ -1,27 +1,15 @@
-from behave import given, when, then
-from time import sleep
-from features.pages.target_home_page import TargetHomePage
+from behave import when, then
 
-
-@given("user is on Target homepage")
-def step_impl(context):
-    context.driver.get(TargetHomePage.URL)
-    sleep(3)
-
-
-@when("user opens account menu")
-def step_impl(context):
-    context.driver.find_element(*TargetHomePage.ACCOUNT_BTN).click()
-    sleep(2)
+from features.pages.target_signin_page import TargetSignInPage
 
 
 @when("user clicks sign in")
-def step_impl(context):
-    context.driver.find_element(*TargetHomePage.SIGN_IN_BTN).click()
-    sleep(3)
+def step_click_signin(context):
+    context.home.click_signin_from_side_menu()
 
 
 @then("sign in page is displayed")
-def step_impl(context):
-    assert context.driver.find_element(*TargetHomePage.SIGNIN_HEADER).is_displayed()
-    assert context.driver.find_element(*TargetHomePage.SIGNIN_BUTTON).is_displayed()
+def step_signin_page_displayed(context):
+    signin = TargetSignInPage(context.driver)
+    assert signin.is_chooser_displayed() or signin.is_form_loaded(), \
+        "Sign in page (chooser or form) not visible"
