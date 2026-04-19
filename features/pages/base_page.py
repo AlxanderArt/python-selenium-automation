@@ -25,17 +25,31 @@ class BasePage:
     def find(self, locator):
         return self.wait.until(EC.presence_of_element_located(locator))
 
+    def find_element(self, locator):
+        # Waits for the element to be in the DOM, then returns it — same as
+        # self.find, but named to match Selenium's API so step files read nicely.
+        return self.wait.until(EC.presence_of_element_located(locator))
+
     def find_visible(self, locator):
         return self.wait.until(EC.visibility_of_element_located(locator))
+
+    def find_elements(self, locator):
+        # Waits for at least one element to be present, then returns the whole
+        # list. Good for counts (how many results / cards / items).
+        self.wait.until(EC.presence_of_element_located(locator))
+        return self.driver.find_elements(*locator)
 
     def click(self, locator):
         self.log.info("Clicking %s", locator)
         self.wait.until(EC.element_to_be_clickable(locator)).click()
 
-    def type(self, locator, text):
+    def input_text(self, locator, text):
         el = self.find_visible(locator)
         el.clear()
         el.send_keys(text)
+
+    # Older code calls this `type`; keep both names so existing callers still work.
+    type = input_text
 
     def is_visible(self, locator):
         try:

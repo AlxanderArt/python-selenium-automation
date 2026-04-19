@@ -1,4 +1,6 @@
 allure-behave
 behave
+certifi
 selenium
+undetected-chromedriver
 webdriver-manager
