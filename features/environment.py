@@ -1,8 +1,20 @@
 import logging
 import os
+import shutil
+import ssl
+import tempfile
 from datetime import datetime
 
-from selenium import webdriver
+import certifi
+
+# macOS Python installs don't see the system keychain by default, which
+# breaks undetected-chromedriver when it fetches its patched chromedriver.
+# Point Python's SSL layer at certifi's bundle before uc imports do any
+# network work.
+os.environ.setdefault("SSL_CERT_FILE", certifi.where())
+ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
+
+import undetected_chromedriver as uc
 
 
 logging.basicConfig(
@@ -14,18 +26,44 @@ log = logging.getLogger("behave")
 
 SCREENSHOT_DIR = "screenshots"
 
+# Shared Chrome profile used only by scenarios that need cookies to persist
+# between runs — for example, StackOverflow signup, which sits behind a
+# Cloudflare challenge. Scenarios opt in by adding the @persistent_profile
+# tag in their .feature file. Every other scenario gets a fresh throwaway
+# profile so cart state, logins, and dismissed banners don't leak between
+# tests.
+AUTOMATION_PROFILE_DIR = os.path.expanduser("~/.chrome-automation-profile")
+
+
+CHROME_BINARY = "/Users/alxanderart/Desktop/Google Chrome.app/Contents/MacOS/Google Chrome"
+
 
 def browser_init(context):
-    options = webdriver.ChromeOptions()
-    options.binary_location = "/Users/alxanderart/Desktop/Google Chrome.app/Contents/MacOS/Google Chrome"
-    options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    # undetected-chromedriver handles the anti-bot flags on its own (patches
+    # chromedriver and drops navigator.webdriver, among other things), so
+    # the usual --disable-blink-features / excludeSwitches lines are gone.
+    # With uc, Cloudflare's "verify you are human" check clears on its own
+    # without a manual click.
+    options = uc.ChromeOptions()
+
+    if "persistent_profile" in (context.scenario.tags or []):
+        os.makedirs(AUTOMATION_PROFILE_DIR, exist_ok=True)
+        profile_dir = AUTOMATION_PROFILE_DIR
+        context._temp_profile = None
+    else:
+        profile_dir = tempfile.mkdtemp(prefix="chrome-test-profile-")
+        context._temp_profile = profile_dir
+    options.add_argument(f"--user-data-dir={profile_dir}")
+    options.add_argument("--window-size=1920,1080")
+
     if os.environ.get("HEADLESS") == "1":
         options.add_argument("--headless=new")
-        options.add_argument("--window-size=1920,1080")
 
-    context.driver = webdriver.Chrome(options=options)
-    context.driver.maximize_window()
+    context.driver = uc.Chrome(
+        options=options,
+        browser_executable_path=CHROME_BINARY,
+        use_subprocess=True,
+    )
     context.driver.implicitly_wait(4)
 
 
@@ -48,6 +86,10 @@ def after_scenario(context, scenario):
     log.info("Scenario END: %s (%s)", scenario.name, scenario.status)
     if getattr(context, "driver", None):
         context.driver.quit()
+    # Clean up any throwaway per-scenario profile so disk doesn't fill up.
+    temp_profile = getattr(context, "_temp_profile", None)
+    if temp_profile and os.path.isdir(temp_profile):
+        shutil.rmtree(temp_profile, ignore_errors=True)
 
 
 def _save_screenshot(context, step_name):

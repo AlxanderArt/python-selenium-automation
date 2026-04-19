@@ -29,15 +29,13 @@ class StackOverflowSignupPage(BasePage):
 
     def load(self):
         self.open(self.URL)
-        # StackOverflow shows a Cloudflare "verify you are human" checkbox
-        # first. It won't auto-solve — click it in the browser window when it
-        # appears, then the test will keep going. 90 seconds gives enough time.
-        self.log.info(
-            "Waiting for the signup form. If the Cloudflare checkbox shows "
-            "up, click it in the open browser window."
-        )
+        # StackOverflow sits behind a Cloudflare challenge. Wait up to 90
+        # seconds for the real signup form to be visible (not just in the
+        # DOM) so the challenge page has fully cleared before any
+        # assertions run. undetected-chromedriver usually clears it in a
+        # few seconds, but the first run on a fresh profile can be slower.
         WebDriverWait(self.driver, 90).until(
-            EC.presence_of_element_located(self.EMAIL)
+            EC.visibility_of_element_located(self.EMAIL)
         )
 
     def is_form_loaded(self):
