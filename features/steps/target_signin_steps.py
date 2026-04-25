@@ -1,6 +1,6 @@
 from behave import when, then
 
-from features.pages.target_signin_page import TargetSignInPage
+from pages.target_signin_page import TargetSignInPage
 
 
 @when("user clicks sign in")

@@ -1,6 +1,6 @@
 from behave import given, then
 
-from features.pages.target_circle_page import TargetCirclePage
+from pages.target_circle_page import TargetCirclePage
 
 
 @given("user opens Target Circle page")

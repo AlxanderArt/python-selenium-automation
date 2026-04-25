@@ -2,7 +2,7 @@ import logging
 
 from behave import given, then
 
-from features.pages.stackoverflow_signup_page import StackOverflowSignupPage
+from pages.stackoverflow_signup_page import StackOverflowSignupPage
 
 
 log = logging.getLogger(__name__)

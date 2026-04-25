@@ -1,6 +1,6 @@
 from behave import given, when, then
 
-from features.pages.target_color_picker_page import TargetColorPickerPage
+from pages.target_color_picker_page import TargetColorPickerPage
 
 
 @given("user opens the Target smocked blouse product page")

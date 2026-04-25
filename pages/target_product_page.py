@@ -1,7 +1,7 @@
 from selenium.common.exceptions import ElementClickInterceptedException
 from selenium.webdriver.common.by import By
 
-from features.pages.base_page import BasePage
+from pages.base_page import BasePage
 
 
 class TargetProductPage(BasePage):

@@ -2,7 +2,7 @@ from behave import given, when, then
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from features.pages.amazon_signin_page import AmazonSignInPage
+from pages.amazon_signin_page import AmazonSignInPage
 
 
 @given("user is on Amazon sign in page")

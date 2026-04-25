@@ -1,7 +1,7 @@
 from behave import when, then
 
-from features.pages.target_cart_page import TargetCartPage
-from features.pages.target_product_page import TargetProductPage
+from pages.target_cart_page import TargetCartPage
+from pages.target_product_page import TargetProductPage
 
 
 @when("user opens the first search result")

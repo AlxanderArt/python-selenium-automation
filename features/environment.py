@@ -18,6 +18,8 @@ ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=ce
 
 import undetected_chromedriver as uc
 
+from app.application import Application
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -89,6 +91,9 @@ def browser_init(context):
 def before_scenario(context, scenario):
     log.info("Scenario START: %s", scenario.name)
     browser_init(context)
+    # Wire every page object up front so step files can reach them through a
+    # single context.app namespace instead of new-ing pages one at a time.
+    context.app = Application(context.driver)
 
 
 def before_step(context, step):
