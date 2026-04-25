@@ -1,6 +1,7 @@
-from selenium.webdriver.common.by import By
 from behave import given, when, then
-from time import sleep
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 
 SEARCH_INPUT = (By.NAME, 'q')
@@ -14,16 +15,21 @@ def open_google(context):
 
 @when('Input {search_word} into search field')
 def input_search(context, search_word):
-    search = context.driver.find_element(*SEARCH_INPUT)
+    # Wait for the input to actually be there before typing — replaces
+    # sleep(4) which was just hoping the page had loaded.
+    wait = WebDriverWait(context.driver, 10)
+    search = wait.until(EC.visibility_of_element_located(SEARCH_INPUT))
     search.clear()
     search.send_keys(search_word)
-    sleep(4)
 
 
 @when('Click on search icon')
 def click_search_icon(context):
-    context.driver.find_element(*SEARCH_SUBMIT).click()
-    sleep(1)
+    wait = WebDriverWait(context.driver, 10)
+    wait.until(EC.element_to_be_clickable(SEARCH_SUBMIT)).click()
+    # Wait for the URL to actually reflect the search before letting the
+    # next step run — replaces sleep(1).
+    wait.until(lambda d: "search" in d.current_url.lower())
 
 
 @then('Product results for {search_word} are shown')

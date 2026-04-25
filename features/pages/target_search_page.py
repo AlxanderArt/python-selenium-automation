@@ -1,5 +1,7 @@
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
 
 from features.pages.base_page import BasePage
 
@@ -32,6 +34,31 @@ class TargetSearchPage(BasePage):
 
     def get_results(self):
         return self.find_elements(self.RESULT_CARDS)
+
+    def scroll_until_all_results_loaded(self, max_iterations=20, step_timeout=3):
+        # Target lazy-loads result cards as the page scrolls — anything below
+        # the initial viewport renders without its title link or image, so a
+        # naive validation loop will see those as 'missing' even though they
+        # would render fine for a real user. Scroll in steps and wait for the
+        # card count to actually grow each time; stop once it stabilizes.
+        last_count = -1
+        for _ in range(max_iterations):
+            current = len(self.driver.find_elements(*self.RESULT_CARDS))
+            if current == last_count and current > 0:
+                return current
+            last_count = current
+            self.driver.execute_script(
+                "window.scrollTo(0, document.body.scrollHeight);"
+            )
+            try:
+                WebDriverWait(self.driver, step_timeout).until(
+                    lambda d: len(d.find_elements(*self.RESULT_CARDS)) > current
+                )
+            except TimeoutException:
+                # No new cards loaded in this window — likely at the bottom.
+                # One more iteration with the same count exits cleanly.
+                pass
+        return last_count
 
     def open_first_result(self):
         results = self.get_results()
