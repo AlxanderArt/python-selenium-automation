@@ -1,7 +1,9 @@
 import logging
 import os
+import re
 import shutil
 import ssl
+import subprocess
 import tempfile
 from datetime import datetime
 
@@ -38,6 +40,22 @@ AUTOMATION_PROFILE_DIR = os.path.expanduser("~/.chrome-automation-profile")
 CHROME_BINARY = "/Users/alxanderart/Desktop/Google Chrome.app/Contents/MacOS/Google Chrome"
 
 
+def _detect_chrome_major_version():
+    # Ask the Chrome binary for its version and pull the major. Without this
+    # undetected-chromedriver downloads the latest stable chromedriver, which
+    # fails with "session not created" whenever the installed Chrome is one
+    # release behind. Returning None lets uc fall back to its default
+    # behavior so this never breaks the environment if the binary moves.
+    try:
+        out = subprocess.check_output(
+            [CHROME_BINARY, "--version"], stderr=subprocess.STDOUT, timeout=5
+        ).decode("utf-8", errors="ignore")
+    except Exception:
+        return None
+    match = re.search(r"(\d+)\.\d+\.\d+\.\d+", out)
+    return int(match.group(1)) if match else None
+
+
 def browser_init(context):
     # undetected-chromedriver handles the anti-bot flags on its own (patches
     # chromedriver and drops navigator.webdriver, among other things), so
@@ -63,6 +81,7 @@ def browser_init(context):
         options=options,
         browser_executable_path=CHROME_BINARY,
         use_subprocess=True,
+        version_main=_detect_chrome_major_version(),
     )
     context.driver.implicitly_wait(4)
 
