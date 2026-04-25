@@ -3,7 +3,7 @@ homepage and opening the account menu."""
 
 from behave import given, when
 
-from features.pages.target_home_page import TargetHomePage
+from pages.target_home_page import TargetHomePage
 
 
 @given("user opens Target homepage")

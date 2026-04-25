@@ -3,7 +3,7 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 
-from features.pages.target_search_page import TargetSearchPage
+from pages.target_search_page import TargetSearchPage
 
 
 @when('user searches for "{term}"')

@@ -3,7 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 
-from features.pages.base_page import BasePage
+from pages.base_page import BasePage
 
 
 class TargetSearchPage(BasePage):
