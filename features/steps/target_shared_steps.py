@@ -1,17 +1,16 @@
-"""Target.com steps that more than one feature file uses — opening the
-homepage and opening the account menu."""
+"""Target.com steps shared across feature files. Both calls go through
+context.app.home_page — the Application aggregator wired up in
+environment.before_scenario already holds the page object, so the step
+file doesn't import TargetHomePage or build it inline."""
 
 from behave import given, when
-
-from pages.target_home_page import TargetHomePage
 
 
 @given("user opens Target homepage")
 def step_open_target_homepage(context):
-    context.home = TargetHomePage(context.driver)
-    context.home.load()
+    context.app.home_page.load()
 
 
 @when("user opens account menu")
 def step_open_account_menu(context):
-    context.home.open_account_menu()
+    context.app.home_page.open_account_menu()

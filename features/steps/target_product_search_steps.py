@@ -3,13 +3,10 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 
-from pages.target_search_page import TargetSearchPage
-
 
 @when('user searches for "{term}"')
 def step_user_searches_for(context, term):
-    context.search_page = TargetSearchPage(context.driver)
-    context.search_page.search(term)
+    context.app.search_page.search(term)
 
 
 @then('product results for "{term}" are shown')
@@ -22,7 +19,7 @@ def step_product_results_shown(context, term):
         or term.lower() in current_url, \
         f'Expected "{term}" in URL but got {current_url}'
 
-    results = context.search_page.get_results()
+    results = context.app.search_page.get_results()
     assert results, f'No result cards shown for "{term}"'
 
 
@@ -30,8 +27,8 @@ def step_product_results_shown(context, term):
 def step_every_result_has_name_and_image(context):
     # First make sure the result count has stabilized — the page lazy-loads
     # more cards as you scroll, so an early read can miss the bottom rows.
-    context.search_page.scroll_until_all_results_loaded()
-    results = context.search_page.get_results()
+    context.app.search_page.scroll_until_all_results_loaded()
+    results = context.app.search_page.get_results()
     assert results, "No result cards on the search page"
 
     title_locator = (By.CSS_SELECTOR, 'a[data-test="@web/ProductCard/title"]')

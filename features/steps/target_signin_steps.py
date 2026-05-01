@@ -1,15 +1,16 @@
-from behave import when, then
+"""Sign-in navigation steps. Page calls go through context.app so the step
+file doesn't build pages itself."""
 
-from pages.target_signin_page import TargetSignInPage
+from behave import when, then
 
 
 @when("user clicks sign in")
 def step_click_signin(context):
-    context.home.click_signin_from_side_menu()
+    context.app.home_page.click_signin_from_side_menu()
 
 
 @then("sign in page is displayed")
 def step_signin_page_displayed(context):
-    signin = TargetSignInPage(context.driver)
+    signin = context.app.signin_page
     assert signin.is_chooser_displayed() or signin.is_form_loaded(), \
         "Sign in page (chooser or form) not visible"
