@@ -25,15 +25,28 @@ from app.application import Application
 
 # BrowserStack target. Set BROWSERSTACK=1 plus BROWSERSTACK_USERNAME and
 # BROWSERSTACK_ACCESS_KEY to run the suite on BS instead of locally.
-# Lifted into a constant so swapping the OS or browser later is one line.
-BROWSERSTACK_CONFIG = {
-    "browserName": "Chrome",
-    "browserVersion": "latest",
-    "bstack:options": {
-        "os": "Windows",
-        "osVersion": "11",
-    },
-}
+# Set BS_BUILD_NAME=HW9 (or similar) to group the run on the dashboard;
+# without it the build name falls back to a local timestamp.
+def get_browserstack_config(scenario_name):
+    return {
+        "browserName": "Chrome",
+        "browserVersion": "latest",
+        "bstack:options": {
+            "os": "Windows",
+            "osVersion": "11",
+            "projectName": "AlxanderArt QA Homework",
+            "buildName": os.environ.get(
+                "BS_BUILD_NAME",
+                datetime.now().strftime("local-%Y-%m-%d-%H-%M"),
+            ),
+            "sessionName": scenario_name,
+            # debug + networkLogs add HAR-style tracing on the BS
+            # dashboard; cheap to enable and saves real time when a
+            # cloud-only failure needs investigation.
+            "debug": True,
+            "networkLogs": True,
+        },
+    }
 
 
 logging.basicConfig(
@@ -78,14 +91,18 @@ def _build_browserstack_driver(scenario_name):
     key = os.environ["BROWSERSTACK_ACCESS_KEY"]
     url = f"https://{user}:{key}@hub-cloud.browserstack.com/wd/hub"
 
+    config = get_browserstack_config(scenario_name)
     options = ChromeOptions()
-    bstack = dict(BROWSERSTACK_CONFIG["bstack:options"])
-    bstack["sessionName"] = scenario_name
-    options.set_capability("browserName", BROWSERSTACK_CONFIG["browserName"])
-    options.set_capability("browserVersion", BROWSERSTACK_CONFIG["browserVersion"])
-    options.set_capability("bstack:options", bstack)
+    options.set_capability("browserName", config["browserName"])
+    options.set_capability("browserVersion", config["browserVersion"])
+    options.set_capability("bstack:options", config["bstack:options"])
 
-    log.info("BrowserStack session: %s", scenario_name)
+    log.info(
+        "BrowserStack project=%s build=%s session=%s",
+        config["bstack:options"]["projectName"],
+        config["bstack:options"]["buildName"],
+        scenario_name,
+    )
     return webdriver.Remote(command_executor=url, options=options)
 
 

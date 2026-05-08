@@ -42,3 +42,18 @@ def step_close_and_return(context):
 @step("Refresh the page")
 def step_refresh_page(context):
     context.app.home_page.refresh_page()
+
+
+# Dropdown steps — used by HW9 and any future scenario that picks an
+# option from a <select>. Stacks the assignment phrasing on top of a
+# generic phrasing so feature files can use either wording.
+@step('Select "{topic}" from dropdown')
+@step("Select Help topic {topic}")
+def step_select_topic_from_dropdown(context, topic):
+    context.app.help_page.select_topic(topic)
+
+
+@step('Header should contain "{text}"')
+@step("Verify help {text} page opened")
+def step_header_should_contain(context, text):
+    context.app.help_page.verify_header_and_url_changed(text)
