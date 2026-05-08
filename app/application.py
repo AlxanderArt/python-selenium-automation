@@ -12,6 +12,7 @@ from pages.target_home_page import TargetHomePage
 from pages.target_product_page import TargetProductPage
 from pages.target_search_page import TargetSearchPage
 from pages.target_signin_page import TargetSignInPage
+from pages.target_terms_page import TargetTermsPage
 
 
 class Application:
@@ -28,6 +29,7 @@ class Application:
         self.product_page = TargetProductPage(driver)
         self.cart_page = TargetCartPage(driver)
         self.signin_page = TargetSignInPage(driver)
+        self.terms_page = TargetTermsPage(driver)
         self.circle_page = TargetCirclePage(driver)
         self.color_picker_page = TargetColorPickerPage(driver)
 
