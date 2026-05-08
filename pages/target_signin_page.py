@@ -23,6 +23,23 @@ class TargetSignInPage(BasePage):
     PASSWORD_FIELD = (By.ID, "password")
     SIGN_IN_BTN = (By.ID, "login")
 
+    # Target reuses the same id ("login") for the Continue button on
+    # the email step and the Sign in with password button on the
+    # password step. Wait helpers below disambiguate by form state.
+    LOGIN_BUTTON = (By.ID, "login")
+
+    # Inline error shown when the password is wrong. Target has changed
+    # the data-test value before, so the case-insensitive text fallback
+    # picks up "incorrect" or "doesn't match" wording either way.
+    ERROR_MESSAGE = (By.CSS_SELECTOR, "[data-test='accountSignInError']")
+    ERROR_MESSAGE_FALLBACK = (
+        By.XPATH,
+        "//*[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', "
+        "'abcdefghijklmnopqrstuvwxyz'), 'incorrect') "
+        "or contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', "
+        "'abcdefghijklmnopqrstuvwxyz'), \"doesn't match\")]",
+    )
+
     # The Target terms and conditions link in the legal footer. Target
     # tags its legal links with aria-label (Lana's lesson 8 uses the
     # same pattern for the privacy policy link), which is more stable
@@ -43,6 +60,50 @@ class TargetSignInPage(BasePage):
 
     def click_terms_link(self):
         self.click(self.TERMS_LINK)
+
+    def wait_for_email_step(self):
+        WebDriverWait(self.driver, 15).until(
+            EC.visibility_of_element_located(self.EMAIL_FIELD)
+        )
+
+    def wait_for_password_step(self):
+        # The button id stays "login" across both steps, so visibility
+        # of the password field is the only reliable signal that
+        # Target's two-step form has actually advanced.
+        WebDriverWait(self.driver, 15).until(
+            EC.visibility_of_element_located(self.PASSWORD_FIELD)
+        )
+
+    def click_continue(self):
+        self.wait_for_email_step()
+        self.click(self.LOGIN_BUTTON)
+
+    def click_sign_in_with_password(self):
+        self.wait_for_password_step()
+        self.click(self.LOGIN_BUTTON)
+
+    def get_error_element(self):
+        # Try the data-test selector first; fall back to the
+        # case-insensitive text match if Target tweaks the attribute.
+        try:
+            return WebDriverWait(self.driver, 5).until(
+                EC.visibility_of_element_located(self.ERROR_MESSAGE)
+            )
+        except TimeoutException:
+            return WebDriverWait(self.driver, 5).until(
+                EC.visibility_of_element_located(self.ERROR_MESSAGE_FALLBACK)
+            )
+
+    def verify_sign_in_error(self):
+        el = self.get_error_element()
+        text = (el.text or "").lower()
+        assert "incorrect" in text or "doesn't match" in text, (
+            f"Sign-in error text didn't match expected wording: {text!r}"
+        )
+        url = self.driver.current_url.lower()
+        assert "login" in url or "sign-in" in url or "/orders" in url, (
+            f"Expected to still be on sign-in flow, got url={url!r}"
+        )
 
     def is_chooser_displayed(self):
         return self.is_visible(self.CHOOSER_HEADER)

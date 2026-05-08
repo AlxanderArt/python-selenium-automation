@@ -8,6 +8,7 @@ from pages.stackoverflow_signup_page import StackOverflowSignupPage
 from pages.target_cart_page import TargetCartPage
 from pages.target_circle_page import TargetCirclePage
 from pages.target_color_picker_page import TargetColorPickerPage
+from pages.target_help_page import TargetHelpPage
 from pages.target_home_page import TargetHomePage
 from pages.target_product_page import TargetProductPage
 from pages.target_search_page import TargetSearchPage
@@ -32,6 +33,7 @@ class Application:
         self.terms_page = TargetTermsPage(driver)
         self.circle_page = TargetCirclePage(driver)
         self.color_picker_page = TargetColorPickerPage(driver)
+        self.help_page = TargetHelpPage(driver)
 
         # Amazon
         self.amazon_signin_page = AmazonSignInPage  # plain locator class, no driver needed
