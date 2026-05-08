@@ -17,8 +17,23 @@ os.environ.setdefault("SSL_CERT_FILE", certifi.where())
 ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
 
 import undetected_chromedriver as uc
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options as ChromeOptions
 
 from app.application import Application
+
+
+# BrowserStack target. Set BROWSERSTACK=1 plus BROWSERSTACK_USERNAME and
+# BROWSERSTACK_ACCESS_KEY to run the suite on BS instead of locally.
+# Lifted into a constant so swapping the OS or browser later is one line.
+BROWSERSTACK_CONFIG = {
+    "browserName": "Chrome",
+    "browserVersion": "latest",
+    "bstack:options": {
+        "os": "Windows",
+        "osVersion": "11",
+    },
+}
 
 
 logging.basicConfig(
@@ -58,12 +73,33 @@ def _detect_chrome_major_version():
     return int(match.group(1)) if match else None
 
 
-def browser_init(context):
-    # undetected-chromedriver handles the anti-bot flags on its own (patches
-    # chromedriver and drops navigator.webdriver, among other things), so
-    # the usual --disable-blink-features / excludeSwitches lines are gone.
-    # With uc, Cloudflare's "verify you are human" check clears on its own
-    # without a manual click.
+def _build_browserstack_driver(scenario_name):
+    user = os.environ["BROWSERSTACK_USERNAME"]
+    key = os.environ["BROWSERSTACK_ACCESS_KEY"]
+    url = f"https://{user}:{key}@hub-cloud.browserstack.com/wd/hub"
+
+    options = ChromeOptions()
+    bstack = dict(BROWSERSTACK_CONFIG["bstack:options"])
+    bstack["sessionName"] = scenario_name
+    options.set_capability("browserName", BROWSERSTACK_CONFIG["browserName"])
+    options.set_capability("browserVersion", BROWSERSTACK_CONFIG["browserVersion"])
+    options.set_capability("bstack:options", bstack)
+
+    log.info("BrowserStack session: %s", scenario_name)
+    return webdriver.Remote(command_executor=url, options=options)
+
+
+def browser_init(context, scenario_name):
+    # When BROWSERSTACK=1, run the scenario on the BS grid via Remote
+    # WebDriver. Otherwise use undetected-chromedriver locally — uc
+    # handles Cloudflare's "verify you are human" challenge silently
+    # which the existing scenarios depend on.
+    if os.environ.get("BROWSERSTACK") == "1":
+        context.driver = _build_browserstack_driver(scenario_name)
+        context._temp_profile = None
+        context.driver.implicitly_wait(4)
+        return
+
     options = uc.ChromeOptions()
 
     if "persistent_profile" in (context.scenario.tags or []):
@@ -100,7 +136,7 @@ def before_scenario(context, scenario):
             return
 
     log.info("Scenario START: %s", scenario.name)
-    browser_init(context)
+    browser_init(context, scenario.name)
     # Wire every page object up front so step files can reach them through a
     # single context.app namespace instead of new-ing pages one at a time.
     context.app = Application(context.driver)
