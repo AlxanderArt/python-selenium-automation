@@ -1,3 +1,4 @@
+@smoke @fast @ui
 Feature: Target Help center dropdown navigation (HW9)
 
   Scenario: User picks Promotions and Coupons from the help dropdown

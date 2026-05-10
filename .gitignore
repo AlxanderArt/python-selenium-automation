@@ -94,3 +94,9 @@ app_binaries/
 
 # Screenshots
 *.png
+
+# Test artifacts (HW10 — Allure + scenario logger)
+test_results/
+reports/
+logs/
+*.log
