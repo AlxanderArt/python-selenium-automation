@@ -1,5 +1,6 @@
 Feature: Target Sign In Flow
 
+  @smoke @fast @ui
   Scenario: User navigates to sign in page
     Given user opens Target homepage
     When user opens account menu

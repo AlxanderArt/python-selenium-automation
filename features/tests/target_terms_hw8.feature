@@ -1,5 +1,6 @@
 Feature: Target Terms and Conditions from sign in page
 
+  @smoke @fast @ui
   Scenario: User can open and close Terms and Conditions from sign in page
     Given Open sign in page
     When Store original window

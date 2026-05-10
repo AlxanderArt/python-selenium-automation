@@ -21,6 +21,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 
 from app.application import Application
+from support.logger import get_logger
 
 
 # BrowserStack target. Set BROWSERSTACK=1 plus BROWSERSTACK_USERNAME and
@@ -153,6 +154,10 @@ def before_scenario(context, scenario):
             return
 
     log.info("Scenario START: %s", scenario.name)
+    # File-backed logger keyed to the scenario, so logs/test_automation.log
+    # ends up with a clean START / END pair per scenario.
+    context.file_logger = get_logger(scenario.name)
+    context.file_logger.info("START: %s", scenario.name)
     browser_init(context, scenario.name)
     # Wire every page object up front so step files can reach them through a
     # single context.app namespace instead of new-ing pages one at a time.
@@ -171,6 +176,10 @@ def after_step(context, step):
 
 def after_scenario(context, scenario):
     log.info("Scenario END: %s (%s)", scenario.name, scenario.status)
+    if hasattr(context, "file_logger"):
+        context.file_logger.info(
+            "END: %s | status=%s", scenario.name, scenario.status
+        )
     if getattr(context, "driver", None):
         context.driver.quit()
     # Clean up any throwaway per-scenario profile so disk doesn't fill up.
